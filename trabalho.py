@@ -54,3 +54,11 @@ todos_os_dados = {
     'Concentração de G': gv,
     'Concentração de F': fv
 }
+nome_arquivo = f"resultados_dt_{dt:.4f}.csv".replace('.', '_')
+df = pd.DataFrame(todos_os_dados)
+df.to_csv(nome_arquivo, index=False)
+print(f"Resultados salvos em {nome_arquivo}")
+print(df)
+print(f"Valor final de F: {fv[-1]}")
+print(f"Valor final de G: {gv[-1]}")
+
