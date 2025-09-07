@@ -43,7 +43,8 @@ for i in dt:
         y0 = [g_init, f_init]
         n = int((tf - t0) / T)
 
-        print(f"Simulação com dt = {T}, n = {n}")
+
+        print(f"Simulação com dt = {T}, n = {n}\n")
         t_valores, y_valores = rk4(reator, t0, y0, T, n)
     
         g_valores = [y[0] for y in y_valores]
@@ -53,28 +54,22 @@ for i in dt:
         'g': g_valores,
         'f': f_valores
     }
-resultados = todos_os_dados[T]
+        resultados = todos_os_dados[T]
+        df = pd.DataFrame({
+            'Tempo': resultados['tempo'],
+            'G': resultados['g'],
+            'F': resultados['f']
+        })
 
-nome_arquivo = f"resultados para dt = {T}.csv".replace('.', '_')
-print(f"Salvando resultados em '{nome_arquivo}'...")
-df = pd.DataFrame(resultados)
-df.to_csv(nome_arquivo, index=False)
-print("Arquivo salvo no meu diretório do codigo.")
-df = pd.read_csv(nome_arquivo)
-
-print(f"Resultados para dt = {resultados['tempo']}:")
-print(f"Tempo (t): {resultados['tempo']}")
-print(f"Concentração de G (g): {resultados['g']}")
-print(f"Concentração de F (f): {resultados['f']}\n")
-
+        nome_arquivo = f"resultados para dt ={T}.csv".replace('.', ',')
+        df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
+        print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
+        print(df)
+        print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
 
 
 
-
-
-print(df)
-print(f"Valor final de F: {resultados['f'][-1]:.6f}")
-print(f"Valor final de G: {resultados['g'][-1]:.6f}")
+print("Simulação concluída para todos os passos de tempo.")
 
 plt.figure(1,figsize=(10, 6))
 plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
