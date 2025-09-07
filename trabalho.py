@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import pandas as pd
 
+
 def reator(t,y):
 
     g = y[0]
@@ -31,34 +32,84 @@ temp_init = 0
 temp_fim = 1
 g_init = 0.03
 f_init = 0
-dt = 0.01
+dt = [0.05, 0.025, 0.01, 0.005]
+todos_os_dados = {}
 
-def simulacao():
-    t0 = temp_init
-    tf = temp_fim
-    y0 = [g_init, f_init]
-    T = dt
-    n = int((tf - t0) / T)
 
-    t_valores, y_valores = rk4(reator, t0, y0, T, n)
+for i in dt:
+        T = i
+        t0 = temp_init
+        tf = temp_fim
+        y0 = [g_init, f_init]
+        n = int((tf - t0) / T)
+
+        print(f"Simulação com dt = {T}, n = {n}")
+        t_valores, y_valores = rk4(reator, t0, y0, T, n)
     
-    g_valores = [y[0] for y in y_valores]
-    f_valores = [y[1] for y in y_valores]
+        g_valores = [y[0] for y in y_valores]
+        f_valores = [y[1] for y in y_valores]
+        todos_os_dados[T] = {
+        'tempo': t_valores,
+        'g': g_valores,
+        'f': f_valores
+    }
+resultados = todos_os_dados[T]
 
-    return t_valores, g_valores, f_valores
-
-tv, gv, fv = simulacao()
-
-todos_os_dados = {
-    'Tempo': tv,
-    'Concentração de G': gv,
-    'Concentração de F': fv
-}
-nome_arquivo = f"resultados_dt_{dt:.4f}.csv".replace('.', '_')
-df = pd.DataFrame(todos_os_dados)
+nome_arquivo = f"resultados para dt = {T}.csv".replace('.', '_')
+print(f"Salvando resultados em '{nome_arquivo}'...")
+df = pd.DataFrame(resultados)
 df.to_csv(nome_arquivo, index=False)
-print(f"Resultados salvos em {nome_arquivo}")
+print("Arquivo salvo no meu diretório do codigo.")
+df = pd.read_csv(nome_arquivo)
+
+print(f"Resultados para dt = {resultados['tempo']}:")
+print(f"Tempo (t): {resultados['tempo']}")
+print(f"Concentração de G (g): {resultados['g']}")
+print(f"Concentração de F (f): {resultados['f']}\n")
+
+
+
+
+
+
 print(df)
-print(f"Valor final de F: {fv[-1]}")
-print(f"Valor final de G: {gv[-1]}")
+print(f"Valor final de F: {resultados['f'][-1]:.6f}")
+print(f"Valor final de G: {resultados['g'][-1]:.6f}")
+
+plt.figure(1,figsize=(10, 6))
+plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
+plt.plot(resultados['tempo'], resultados['f'], label='Concentração de F') 
+plt.xlabel('Tempo')
+plt.ylabel('Concentração')
+plt.title('Concentração de G e F ao longo do tempo')
+plt.legend()
+plt.grid(True)
+plt.show()  
+
+plt.figure(2,figsize=(10, 6))
+plt.plot(resultados['g'], resultados['f'], label='F vs G')
+plt.xlabel('Concentração de G')
+plt.ylabel('Concentração de F')
+plt.title('Diagrama de Fase')
+plt.legend()
+plt.grid(True)
+plt.show() 
+
+plt.figure(3,figsize=(10, 6))
+plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
+plt.xlabel('Tempo')
+plt.ylabel('Concentração de G')
+plt.title('Concentração de G ao longo do tempo')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+plt.figure(4,figsize=(10, 6))
+plt.plot(resultados['tempo'], resultados['f'], label='Concentração de F', color='orange')
+plt.xlabel('Tempo')
+plt.ylabel('Concentração de F')
+plt.title('Concentração de F ao longo do tempo')
+plt.legend()
+plt.grid(True)
+plt.show()
 
