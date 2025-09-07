@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 import pandas as pd
-
+import os
 
 def reator(t,y):
 
@@ -63,6 +63,7 @@ for i in dt:
 
         nome_arquivo = f"resultados para dt ={T}.csv".replace('.', ',')
         df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
+        
         print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
         print(df)
         print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
@@ -71,40 +72,58 @@ for i in dt:
 
 print("Simulação concluída para todos os passos de tempo.")
 
-plt.figure(1,figsize=(10, 6))
+
+plt.figure(1,figsize=(12, 6))
+for i in dt:
+    resultados = todos_os_dados[i]
+    plt.plot(resultados['tempo'], resultados['g'], label=f'G (dt={i})')
+plt.xlabel('Tempo')
+plt.ylabel('Concentração de G')
+plt.title('Convergência da solução G para diferentes valores de dt')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+plt.figure(2,figsize=(12, 6))
+for i in dt:
+    resultados = todos_os_dados[i]
+    plt.plot(resultados['tempo'], resultados['f'], label=f'F (dt={i})')
+plt.xlabel('Tempo')
+plt.ylabel('Concentração de F')
+plt.title('Convergência da solução F para diferentes valores de dt')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+menor_dt = min(dt)
+resultados = todos_os_dados[menor_dt]
+
+plt.figure(3,figsize=(10, 6))
 plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
 plt.plot(resultados['tempo'], resultados['f'], label='Concentração de F') 
 plt.xlabel('Tempo')
 plt.ylabel('Concentração')
-plt.title('Concentração de G e F ao longo do tempo')
-plt.legend()
-plt.grid(True)
-plt.show()  
-
-plt.figure(2,figsize=(10, 6))
-plt.plot(resultados['g'], resultados['f'], label='F vs G')
-plt.xlabel('Concentração de G')
-plt.ylabel('Concentração de F')
-plt.title('Diagrama de Fase')
-plt.legend()
-plt.grid(True)
-plt.show() 
-
-plt.figure(3,figsize=(10, 6))
-plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
-plt.xlabel('Tempo')
-plt.ylabel('Concentração de G')
-plt.title('Concentração de G ao longo do tempo')
+plt.title(f'Concentração de G e F ao longo do tempo (dt={menor_dt})')
 plt.legend()
 plt.grid(True)
 plt.show()
 
 plt.figure(4,figsize=(10, 6))
-plt.plot(resultados['tempo'], resultados['f'], label='Concentração de F', color='orange')
-plt.xlabel('Tempo')
+plt.plot(resultados['g'], label='Concentração de G', color='blue')
+plt.xlabel('Concentração de G')
 plt.ylabel('Concentração de F')
-plt.title('Concentração de F ao longo do tempo')
+plt.title('Concentração de G em função de F')
 plt.legend()
 plt.grid(True)
 plt.show()
 
+plt.figure(5,figsize=(10, 6))
+plt.plot(resultados['f'], label='Concentração de F', color='orange')
+plt.xlabel('Concentração de F')
+plt.ylabel('Concentração de G')
+plt.title('Concentração de F em função de G')
+plt.legend()
+plt.grid(True)
+plt.show()
