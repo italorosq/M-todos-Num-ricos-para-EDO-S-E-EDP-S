@@ -1,13 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 import pandas as pd
-import os
+
+cont1 = float(input("Digite o valor da primeira constante: "))
+cont2 = float(input("Digite o valor da segunda constante: "))
+cont3 = float(input("Digite o valor da terceira constante: "))
 
 def reator(t,y):
 
     g = y[0]
-    dgdt = 13.19 * g - 13.94 * g**2
-    dfdt = 1.71 * g
+    dgdt = cont1* g - cont2 * g**2
+    dfdt = cont3 * g
     return np.array([dgdt, dfdt])
 
 def rk4(f, t0, y0, T, n):
@@ -63,15 +66,13 @@ for i in dt:
 
         nome_arquivo = f"resultados para dt ={T}.csv".replace('.', ',')
         df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
-        
         print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
         print(df)
         print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
-
+        
 
 
 print("Simulação concluída para todos os passos de tempo.")
-
 
 plt.figure(1,figsize=(12, 6))
 for i in dt:
@@ -120,7 +121,7 @@ plt.grid(True)
 plt.show()
 
 plt.figure(5,figsize=(10, 6))
-plt.plot(resultados['f'], label='Concentração de F', color='orange')
+plt.plot(resultados['f'], label='Concentração de F', color='red')
 plt.xlabel('Concentração de F')
 plt.ylabel('Concentração de G')
 plt.title('Concentração de F em função de G')
