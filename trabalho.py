@@ -1,29 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 import pandas as pd
+import seaborn as sns
 
-cont1 = float(input("Digite o valor da primeira constante: "))
-cont2 = float(input("Digite o valor da segunda constante: "))
-cont3 = float(input("Digite o valor da terceira constante: "))
 
-def reator(t,y):
+
+def reator(t,y,c1, c2, c3):
 
     g = y[0]
     dgdt = cont1* g - cont2 * g**2
     dfdt = cont3 * g
     return np.array([dgdt, dfdt])
 
-def rk4(f, t0, y0, T, n):
+def rk4(f, t0, y0, T, n,c1, c2, c3):
     t_valores = [t0]
     y_valores = [y0]
     
     t = t0
     y = y0
     for i in range(n):
-        k1 = T * f(t, y)
-        k2 = T * f(t + 0.5 * T, y + 0.5 * k1)
-        k3 = T * f(t + 0.5 * T, y + 0.5 * k2)
-        k4 = T * f(t + T, y + k3)
+        k1 = T * f(t, y, c1, c2, c3)
+        k2 = T * f(t + 0.5 * T, y + 0.5 * k1, c1, c2, c3)
+        k3 = T * f(t + 0.5 * T, y + 0.5 * k2, c1, c2, c3)
+        k4 = T * f(t + T, y + k3, c1, c2, c3)
         y = y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
         t = t + T
         t_valores.append(t)
@@ -38,93 +37,60 @@ f_init = 0
 dt = [0.05, 0.025, 0.01, 0.005]
 todos_os_dados = {}
 
+for i in range(3):
+    if i == 0:
+        print("Usando constantes padrão do trabalho:")
+        cont1, cont2, cont3 =  13.1, 13.94, 1.71
+    else: 
+        cont1 = float(input("Digite o valor da primeira constante: "))
+        cont2 = float(input("Digite o valor da segunda constante: "))
+        cont3 = float(input("Digite o valor da terceira constante: "))
 
-for i in dt:
-        T = i
-        t0 = temp_init
-        tf = temp_fim
-        y0 = [g_init, f_init]
-        n = int((tf - t0) / T)
+
+    for i in dt:
+            T = i
+            t0 = temp_init
+            tf = temp_fim
+            y0 = [g_init, f_init]
+            n = int((tf - t0) / T)
 
 
-        print(f"Simulação com dt = {T}, n = {n}\n")
-        t_valores, y_valores = rk4(reator, t0, y0, T, n)
-    
-        g_valores = [y[0] for y in y_valores]
-        f_valores = [y[1] for y in y_valores]
-        todos_os_dados[T] = {
-        'tempo': t_valores,
-        'g': g_valores,
-        'f': f_valores
-    }
-        resultados = todos_os_dados[T]
-        df = pd.DataFrame({
-            'Tempo': resultados['tempo'],
-            'G': resultados['g'],
-            'F': resultados['f']
-        })
-
-        nome_arquivo = f"resultados para dt ={T}.csv".replace('.', ',')
-        df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
-        print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
-        print(df)
-        print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
+            print(f"Simulação com dt = {T}, n = {n}\n")
+            t_valores, y_valores = rk4(reator, t0, y0, T, n, cont1, cont2, cont3)
         
+            g_valores = [y[0] for y in y_valores]
+            f_valores = [y[1] for y in y_valores]
+            todos_os_dados[T] = {
+            'tempo': t_valores,
+            'g': g_valores,
+            'f': f_valores
+        }
+            resultados = todos_os_dados[T]
+            df = pd.DataFrame({
+                'Tempo': resultados['tempo'],
+                'G': resultados['g'],
+                'F': resultados['f']
+            })
+
+            nome_arquivo = f"resultados para dt ={T}.csv".replace('.', ',')
+            df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
+            print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
+            print(df)
+            print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
+            
 
 
-print("Simulação concluída para todos os passos de tempo.")
+    print("Simulação concluída para todos os passos de tempo.")
 
-plt.figure(1,figsize=(12, 6))
-for i in dt:
-    resultados = todos_os_dados[i]
-    plt.plot(resultados['tempo'], resultados['g'], label=f'G (dt={i})')
-plt.xlabel('Tempo')
-plt.ylabel('Concentração de G')
-plt.title('Convergência da solução G para diferentes valores de dt')
-plt.legend()
-plt.grid(True)
-plt.show()
+    sns.set_theme(style="whitegrid", palette="viridis")
 
-
-plt.figure(2,figsize=(12, 6))
-for i in dt:
-    resultados = todos_os_dados[i]
-    plt.plot(resultados['tempo'], resultados['f'], label=f'F (dt={i})')
-plt.xlabel('Tempo')
-plt.ylabel('Concentração de F')
-plt.title('Convergência da solução F para diferentes valores de dt')
-plt.legend()
-plt.grid(True)
-plt.show()
+for dt in T:
+    dados = todos_os_dados[dt]
+    sns.lineplot(x=dados['tempo'], y=dados['g'], label=f'dt={dt}')
+    plt.title('Concentração de G ao longo do tempo')
+    plt.xlabel('Tempo')
+    plt.ylabel('Concentração de G')
+    plt.legend()
+    plt.show()
 
 
-menor_dt = min(dt)
-resultados = todos_os_dados[menor_dt]
-
-plt.figure(3,figsize=(10, 6))
-plt.plot(resultados['tempo'], resultados['g'], label='Concentração de G')
-plt.plot(resultados['tempo'], resultados['f'], label='Concentração de F') 
-plt.xlabel('Tempo')
-plt.ylabel('Concentração')
-plt.title(f'Concentração de G e F ao longo do tempo (dt={menor_dt})')
-plt.legend()
-plt.grid(True)
-plt.show()
-
-plt.figure(4,figsize=(10, 6))
-plt.plot(resultados['g'], label='Concentração de G', color='blue')
-plt.xlabel('Concentração de G')
-plt.ylabel('Concentração de F')
-plt.title('Concentração de G em função de F')
-plt.legend()
-plt.grid(True)
-plt.show()
-
-plt.figure(5,figsize=(10, 6))
-plt.plot(resultados['f'], label='Concentração de F', color='red')
-plt.xlabel('Concentração de F')
-plt.ylabel('Concentração de G')
-plt.title('Concentração de F em função de G')
-plt.legend()
-plt.grid(True)
-plt.show()
