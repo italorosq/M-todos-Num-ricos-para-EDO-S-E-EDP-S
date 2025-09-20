@@ -60,8 +60,8 @@ for i in range(3):
         simulacao= f'Simulação {i+1}'
 ## Loop para diferentes valores de dt
 
-    for i in dt:
-            T = i
+    for dt1 in dt:
+            T = dt1
             t0 = temp_init
             tf = temp_fim
             y0 = [g_init, f_init]
@@ -82,22 +82,81 @@ for i in range(3):
             'f': f_valores
         }
             resultados = todos_os_dados[T]
-            df = pd.DataFrame({
-                'Tempo': resultados['tempo'],
-                'G': resultados['g'],
-                'F': resultados['f']
-            })
+
+
+    dados_simulacoes[simulacao] = todos_os_dados.copy()
+    print("Simulação concluída para todos os passos de tempo.")
 
 ## Salvando os resultados em um arquivo CSV
 
-            nome_arquivo = f"resultados para dt ={T}.csv".replace('.', '|')
-            df.to_csv(nome_arquivo, index=False, sep=';' , float_format='%.6f')
-            print(f"Resultados salvos em {nome_arquivo} no diretorio atual.\n")
-            print(df)
-            print(f'valores finais para dt = {T:.6f}:\n G = {resultados["g"][-1]:.6f}:\n F = {resultados["f"][-1]:.6f}\n')
-            
-    dados_simulacoes[simulacao] = todos_os_dados
-    print("Simulação concluída para todos os passos de tempo.")
+for dt1 in dt:
+    lista_de_dfs = [pd.DataFrame({
+                        'Tempo': dados[dt1]['tempo'],
+                        f'G ({simulacao})': dados[dt1]['g'],
+                        f'F ({simulacao})': dados[dt1]['f']
+                     }).set_index('Tempo')
+                     for simulacao, dados in dados_simulacoes.items()]
+    
+    df_final = pd.concat(lista_de_dfs, axis=1)
+    nome_arquivo = f"resultados dt={dt1}.csv".replace('.', ',')
+    df_final.to_csv(nome_arquivo, sep='|', float_format='%.6f')
+    print(f"Arquivo salvo em: {nome_arquivo}")
 
-sns.set_theme(style="whitegrid", palette="viridis")
+marcador = ['o', 's', '^', 'D']
+linha = ['-', '--', ':', '-.']
 
+for simulacao, dados in dados_simulacoes.items():
+
+    ## Cria o gráfico de G para esta simulação
+    plt.figure(figsize=(10, 6))
+    plt.title(f'Análise de Convergência de G - {simulacao}')
+    for i, (dt_valor, resultados) in enumerate(dados.items()):
+        plt.plot(resultados['tempo'], resultados['g'], label=f'dt={dt_valor}', 
+                 marker=marcador[i], linestyle=linha[i])
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Concentração de G')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    ## Cria o gráfico de F para esta simulação
+    plt.figure(figsize=(10, 6))
+    plt.title(f'Análise de Convergência de F - {simulacao}')
+    for i, (dt_valor, resultados) in enumerate(dados.items()):
+        plt.plot(resultados['tempo'], resultados['f'], label=f'dt={dt_valor}', 
+                 marker=marcador[i], linestyle=linha[i])
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Concentração de F')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+## GRÁFICO 2: ANÁLISE DE SENSIBILIDADE
+menor_dt = min(dt)
+print(f"\n... Gerando gráficos de sensibilidade comparando as simulações (usando dt={menor_dt})...")
+
+## Cria o gráfico comparativo para G
+plt.figure(figsize=(10, 6))
+plt.title(f'Análise de Sensibilidade de G (dt={menor_dt})')
+for i, (simulacao, dados) in enumerate(dados_simulacoes.items()):
+    resultados_precisos = dados[menor_dt]
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['g'], 
+             label=simulacao, marker=marcador[i])
+plt.xlabel('Tempo (s)')
+plt.ylabel('Concentração de G')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+## Cria o gráfico comparativo para F
+plt.figure(figsize=(10, 6))
+plt.title(f'Análise de Sensibilidade de F (dt={menor_dt})')
+for i, (simulacao, dados) in enumerate(dados_simulacoes.items()):
+    resultados_precisos = dados[menor_dt]
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['f'], 
+             label=simulacao, marker=marcador[i])
+plt.xlabel('Tempo (s)')
+plt.ylabel('Concentração de F')
+plt.legend()
+plt.grid(True)
+plt.show()
