@@ -38,14 +38,14 @@ temp_init = 0
 temp_fim = 1
 g_init = 0.03
 f_init = 0
-dt = [0.05, 0.025, 0.01, 0.005]
-todos_os_dados = {}  # Armazena todos os dados das simulações
+dt = [0.3, 0.1, 0.08, 0.05, 0.025,]
+
 dados_simulacoes = {} # Armazena os dados de cada simulação
 
 ## Correndo as simulações para diferentes valores de dt e constantes
 
 for i in range(3):
-
+    todos_os_dados = {}  # Armazena todos os dados das simulações
 ## Entrada de constantes e garantia de uso das constantes padrão na primeira simulação
 
     if i == 0:
@@ -88,75 +88,66 @@ for i in range(3):
     print("Simulação concluída para todos os passos de tempo.")
 
 ## Salvando os resultados em um arquivo CSV
+sns.set_style("whitegrid")
+sns.set_palette("rocket")
 
-for dt1 in dt:
-    lista_de_dfs = [pd.DataFrame({
-                        'Tempo': dados[dt1]['tempo'],
-                        f'G ({simulacao})': dados[dt1]['g'],
-                        f'F ({simulacao})': dados[dt1]['f']
-                     }).set_index('Tempo')
-                     for simulacao, dados in dados_simulacoes.items()]
-    
-    df_final = pd.concat(lista_de_dfs, axis=1)
-    nome_arquivo = f"resultados dt={dt1}.csv".replace('.', ',')
-    df_final.to_csv(nome_arquivo, sep='|', float_format='%.6f')
-    print(f"Arquivo salvo em: {nome_arquivo}")
+marcador = ['o', 's', '^', 'D','*']
+linha = ['-', '--', ':', '-.', '-']
 
-marcador = ['o', 's', '^', 'D']
-linha = ['-', '--', ':', '-.']
-
+# GRÁFICO 1: ANÁLISE DE CONVERGÊNCIA (para cada simulação)
 for simulacao, dados in dados_simulacoes.items():
-
-    ## Cria o gráfico de G para esta simulação
-    plt.figure(figsize=(10, 6))
-    plt.title(f'Análise de Convergência de G - {simulacao}')
+    # Gráfico de G
+    plt.figure(figsize=(12, 7))
+    plt.title(f'Análise de Convergência de G - {simulacao}', fontsize=16)
     for i, (dt_valor, resultados) in enumerate(dados.items()):
-        plt.plot(resultados['tempo'], resultados['g'], label=f'dt={dt_valor}', 
-                 marker=marcador[i], linestyle=linha[i])
-    plt.xlabel('Tempo (s)')
-    plt.ylabel('Concentração de G')
-    plt.legend()
-    plt.grid(True)
+        plt.plot(resultados['tempo'], resultados['g'], label=f'dt={dt_valor}',
+                 marker=marcador[i], linestyle=linha[i], markersize=5)
+    plt.xlabel('Tempo (s)', fontsize=12)
+    plt.ylabel('Concentração de G', fontsize=12)
+    plt.legend(fontsize=10)
+    plt.tight_layout()
     plt.show()
 
-    ## Cria o gráfico de F para esta simulação
-    plt.figure(figsize=(10, 6))
-    plt.title(f'Análise de Convergência de F - {simulacao}')
+    # Gráfico de F
+    plt.figure(figsize=(12, 7))
+    plt.title(f'Análise de Convergência de F - {simulacao}', fontsize=16)
     for i, (dt_valor, resultados) in enumerate(dados.items()):
-        plt.plot(resultados['tempo'], resultados['f'], label=f'dt={dt_valor}', 
-                 marker=marcador[i], linestyle=linha[i])
-    plt.xlabel('Tempo (s)')
-    plt.ylabel('Concentração de F')
-    plt.legend()
-    plt.grid(True)
+        plt.plot(resultados['tempo'], resultados['f'], label=f'dt={dt_valor}',
+                 marker=marcador[i], linestyle=linha[i], markersize=5)
+    plt.xlabel('Tempo (s)', fontsize=12)
+    plt.ylabel('Concentração de F', fontsize=12)
+    plt.legend(fontsize=10)
+    plt.tight_layout()
     plt.show()
 
-## GRÁFICO 2: ANÁLISE DE SENSIBILIDADE
+# GRÁFICO 2: ANÁLISE DE SENSIBILIDADE
 menor_dt = min(dt)
 print(f"\n... Gerando gráficos de sensibilidade comparando as simulações (usando dt={menor_dt})...")
 
-## Cria o gráfico comparativo para G
-plt.figure(figsize=(10, 6))
-plt.title(f'Análise de Sensibilidade de G (dt={menor_dt})')
+# Gráfico comparativo para G
+plt.figure(figsize=(12, 7))
+plt.title(f'Análise de Sensibilidade de G (dt={menor_dt})', fontsize=16)
+cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
 for i, (simulacao, dados) in enumerate(dados_simulacoes.items()):
     resultados_precisos = dados[menor_dt]
-    plt.plot(resultados_precisos['tempo'], resultados_precisos['g'], 
-             label=simulacao, marker=marcador[i])
-plt.xlabel('Tempo (s)')
-plt.ylabel('Concentração de G')
-plt.legend()
-plt.grid(True)
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['g'],
+             label=simulacao, color=cores_sensibilidade[i], linestyle='-')
+plt.xlabel('Tempo (s)', fontsize=12)
+plt.ylabel('Concentração de G', fontsize=12)
+plt.legend(fontsize=10)
+plt.tight_layout()
 plt.show()
 
-## Cria o gráfico comparativo para F
-plt.figure(figsize=(10, 6))
-plt.title(f'Análise de Sensibilidade de F (dt={menor_dt})')
+# Gráfico comparativo para F
+plt.figure(figsize=(12, 7))
+plt.title(f'Análise de Sensibilidade de F (dt={menor_dt})', fontsize=16)
+cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
 for i, (simulacao, dados) in enumerate(dados_simulacoes.items()):
     resultados_precisos = dados[menor_dt]
-    plt.plot(resultados_precisos['tempo'], resultados_precisos['f'], 
-             label=simulacao, marker=marcador[i])
-plt.xlabel('Tempo (s)')
-plt.ylabel('Concentração de F')
-plt.legend()
-plt.grid(True)
-plt.show()
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['f'],
+             label=simulacao, color=cores_sensibilidade[i], linestyle='-')
+plt.xlabel('Tempo (s)', fontsize=12)
+plt.ylabel('Concentração de F', fontsize=12)
+plt.legend(fontsize=10)
+plt.tight_layout()
+plt.show() 
