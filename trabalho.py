@@ -87,6 +87,20 @@ for i in range(3):
     dados_simulacoes[simulacao] = todos_os_dados.copy()
     print("Simulação concluída para todos os passos de tempo.")
 
+for dt1 in dt:
+    lista_de_dfs = [pd.DataFrame({
+                        'Tempo': dados[dt1]['tempo'],
+                        f'G ({simulacao})': dados[dt1]['g'],
+                        f'F ({simulacao})': dados[dt1]['f']
+                     }).set_index('Tempo')
+                     for simulacao, dados in dados_simulacoes.items()]
+    
+    df_final = pd.concat(lista_de_dfs, axis=1)
+    nome_arquivo = f"resultados dt={dt1}.csv".replace('.', ',')
+    df_final.to_csv(nome_arquivo, sep='|', float_format='%.6f')
+    print(f"Arquivo salvo em: {nome_arquivo}")
+
+
 ## Salvando os resultados em um arquivo CSV
 sns.set_style("whitegrid")
 sns.set_palette("rocket")
@@ -121,7 +135,7 @@ for simulacao, dados in dados_simulacoes.items():
     plt.show()
 
 # GRÁFICO 2: ANÁLISE DE SENSIBILIDADE
-menor_dt = min(dt)
+menor_dt = 0.05
 print(f"\n... Gerando gráficos de sensibilidade comparando as simulações (usando dt={menor_dt})...")
 
 # Gráfico comparativo para G
