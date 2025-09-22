@@ -38,7 +38,7 @@ temp_init = 0
 temp_fim = 1
 g_init = 0.03
 f_init = 0
-dt = [0.3, 0.1, 0.08, 0.05, 0.025,]
+dt = [0.5, 0.3, 0.1, 0.08, 0.05, 0.025]
 
 dados_simulacoes = {} # Armazena os dados de cada simulação
 
@@ -105,8 +105,8 @@ for dt1 in dt:
 sns.set_style("whitegrid")
 sns.set_palette("rocket")
 
-marcador = ['o', 's', '^', 'D','*']
-linha = ['-', '--', ':', '-.', '-']
+marcador = ['o', 's', '^', 'D','*','x']
+linha = ['-', '--', ':', '-.', '-','-']
 
 # GRÁFICO 1: ANÁLISE DE CONVERGÊNCIA (para cada simulação)
 for simulacao, dados in dados_simulacoes.items():
@@ -114,6 +114,8 @@ for simulacao, dados in dados_simulacoes.items():
     plt.figure(figsize=(12, 7))
     plt.title(f'Análise de Convergência de G - {simulacao}', fontsize=16)
     for i, (dt_valor, resultados) in enumerate(dados.items()):
+        if dt_valor == 0.5:
+            continue  # Pula o dt=0.5 para evitar sobreposição
         plt.plot(resultados['tempo'], resultados['g'], label=f'dt={dt_valor}',
                  marker=marcador[i], linestyle=linha[i], markersize=5)
     plt.xlabel('Tempo (s)', fontsize=12)
@@ -126,6 +128,8 @@ for simulacao, dados in dados_simulacoes.items():
     plt.figure(figsize=(12, 7))
     plt.title(f'Análise de Convergência de F - {simulacao}', fontsize=16)
     for i, (dt_valor, resultados) in enumerate(dados.items()):
+        if dt_valor == 0.5:
+            continue  # Pula o dt=0.5 para evitar sobreposição
         plt.plot(resultados['tempo'], resultados['f'], label=f'dt={dt_valor}',
                  marker=marcador[i], linestyle=linha[i], markersize=5)
     plt.xlabel('Tempo (s)', fontsize=12)
@@ -165,3 +169,36 @@ plt.ylabel('Concentração de F', fontsize=12)
 plt.legend(fontsize=10)
 plt.tight_layout()
 plt.show() 
+
+expdt=0.5
+for simulacao, dados in dados_simulacoes.items():
+    resultados_precisos = dados[expdt]
+    plt.figure(figsize=(12, 7))
+    plt.title(f'Análise para dt={expdt} - {simulacao}', fontsize=16)
+    cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
+    for i, (dt_valor, resultados) in enumerate(dados.items()):
+        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025]:
+            continue
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['g'], label='G', color=cores_sensibilidade[0], linestyle='-')
+    plt.xlabel('Tempo (s)', fontsize=12)
+    plt.ylabel('Concentração', fontsize=12)
+    plt.legend(fontsize=10)
+    plt.tight_layout()
+    plt.show()
+
+
+for simulacao, dados in dados_simulacoes.items():
+    resultados_precisos = dados[expdt]
+    plt.figure(figsize=(12, 7))
+    plt.title(f'Análise para dt={expdt} - {simulacao}', fontsize=16)
+    cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
+    for i, (dt_valor, resultados) in enumerate(dados.items()):
+        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025]:
+            continue
+    plt.plot(resultados_precisos['tempo'], resultados_precisos['f'], label='F', color=cores_sensibilidade[0], linestyle='-')
+    plt.xlabel('Tempo (s)', fontsize=12)
+    plt.ylabel('Concentração', fontsize=12)
+    plt.legend(fontsize=10)
+    plt.tight_layout()
+    plt.show()
+
