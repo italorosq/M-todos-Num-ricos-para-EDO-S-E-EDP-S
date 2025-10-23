@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
@@ -17,7 +17,7 @@ def reator(t,y,c1, c2, c3):
 def rk4(f, t0, y0, T, n,c1, c2, c3):
     t_valores = [t0]
     y_valores = [y0]
-    
+
     t = t0
     y = y0
     for i in range(n):
@@ -38,7 +38,7 @@ temp_init = 0
 temp_fim = 1
 g_init = 0.03
 f_init = 0
-dt = [0.5, 0.3, 0.1, 0.08, 0.05, 0.025]
+dt = [0.5, 0.3, 0.1, 0.08, 0.05, 0.025, 0.0125]
 
 dados_simulacoes = {} # Armazena os dados de cada simulação
 
@@ -52,7 +52,7 @@ for i in range(3):
         print("Usando constantes padrão do trabalho:")
         c1, c2, c3 =  13.1, 13.94, 1.71
         simulacao= 'Constantes Padrão'
-    else: 
+    else:
         print(f"Simulação de numero {i+1}:")
         c1 = float(input("Digite o valor da primeira constante: "))
         c2 = float(input("Digite o valor da segunda constante: "))
@@ -72,7 +72,7 @@ for i in range(3):
             t_valores, y_valores = rk4(reator, t0, y0, T, n, c1, c2, c3)
 
 ## Separando os valores de g e f
-        
+
             g_valores = [y[0] for y in y_valores]
             f_valores = [y[1] for y in y_valores]
 
@@ -94,7 +94,7 @@ for dt1 in dt:
                         f'F ({simulacao})': dados[dt1]['f']
                      }).set_index('Tempo')
                      for simulacao, dados in dados_simulacoes.items()]
-    
+
     df_final = pd.concat(lista_de_dfs, axis=1)
     nome_arquivo = f"resultados dt={dt1}.csv".replace('.', ',')
     df_final.to_csv(nome_arquivo, sep='|', float_format='%.6f')
@@ -117,7 +117,7 @@ for simulacao, dados in dados_simulacoes.items():
         if dt_valor == 0.5:
             continue  # Pula o dt=0.5 para evitar sobreposição
         plt.plot(resultados['tempo'], resultados['g'], label=f'dt={dt_valor}',
-                 marker=marcador[i], linestyle=linha[i], markersize=5)
+                 marker=marcador[i % len(marcador)], linestyle=linha[i % len(linha)], markersize=5)
     plt.xlabel('Tempo (s)', fontsize=12)
     plt.ylabel('Concentração de G', fontsize=12)
     plt.legend(fontsize=10)
@@ -131,7 +131,7 @@ for simulacao, dados in dados_simulacoes.items():
         if dt_valor == 0.5:
             continue  # Pula o dt=0.5 para evitar sobreposição
         plt.plot(resultados['tempo'], resultados['f'], label=f'dt={dt_valor}',
-                 marker=marcador[i], linestyle=linha[i], markersize=5)
+                 marker=marcador[i % len(marcador)], linestyle=linha[i % len(linha)], markersize=5)
     plt.xlabel('Tempo (s)', fontsize=12)
     plt.ylabel('Concentração de F', fontsize=12)
     plt.legend(fontsize=10)
@@ -139,7 +139,7 @@ for simulacao, dados in dados_simulacoes.items():
     plt.show()
 
 # GRÁFICO 2: ANÁLISE DE SENSIBILIDADE
-menor_dt = 0.05
+menor_dt = 0.0125
 print(f"\n... Gerando gráficos de sensibilidade comparando as simulações (usando dt={menor_dt})...")
 
 # Gráfico comparativo para G
@@ -168,7 +168,7 @@ plt.xlabel('Tempo (s)', fontsize=12)
 plt.ylabel('Concentração de F', fontsize=12)
 plt.legend(fontsize=10)
 plt.tight_layout()
-plt.show() 
+plt.show()
 
 expdt=0.5
 for simulacao, dados in dados_simulacoes.items():
@@ -177,7 +177,7 @@ for simulacao, dados in dados_simulacoes.items():
     plt.title(f'Análise para dt={expdt} - {simulacao}', fontsize=16)
     cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
     for i, (dt_valor, resultados) in enumerate(dados.items()):
-        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025]:
+        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025, 0.0125]:
             continue
     plt.plot(resultados_precisos['tempo'], resultados_precisos['g'], label='G', color=cores_sensibilidade[0], linestyle='-')
     plt.xlabel('Tempo (s)', fontsize=12)
@@ -193,7 +193,7 @@ for simulacao, dados in dados_simulacoes.items():
     plt.title(f'Análise para dt={expdt} - {simulacao}', fontsize=16)
     cores_sensibilidade = sns.color_palette("rocket", n_colors=len(dados_simulacoes))
     for i, (dt_valor, resultados) in enumerate(dados.items()):
-        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025]:
+        if dt_valor in [0.3, 0.1, 0.08, 0.05, 0.025, 0.0125]:
             continue
     plt.plot(resultados_precisos['tempo'], resultados_precisos['f'], label='F', color=cores_sensibilidade[0], linestyle='-')
     plt.xlabel('Tempo (s)', fontsize=12)
@@ -201,4 +201,3 @@ for simulacao, dados in dados_simulacoes.items():
     plt.legend(fontsize=10)
     plt.tight_layout()
     plt.show()
-
